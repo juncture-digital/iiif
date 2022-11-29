@@ -1,2 +1,2 @@
 # iiif
-Juncture IIIF Presentation Service
+IIIF presentation and image services

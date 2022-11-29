@@ -1,0 +1,9 @@
+*creds.yaml
+*creds.json
+config.yaml
+gcreds.json
+.venv
+__pycache__
+images/*
+aws-creds
+*.sqlite

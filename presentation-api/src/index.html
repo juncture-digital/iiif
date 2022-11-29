@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <link href="https://visual-essays.github.io/web-app/static/images/favicon.svg" rel="icon" type="image/svg+xml"/>
+  <link href="https://visual-essays.github.io/web-app/static/images/favicon.png" rel="icon" type="image/png"/>
+  <title>Visual Essays Image Tool</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <!-- <link href="https://unpkg.com/visual-essays/dist/visual-essays/visual-essays.css" rel="stylesheet" /> -->
+  <style>
+    [v-cloak] {display: none}
+    body {margin: 0; font-family: Roboto, sans-serif; width: 100%;}
+    * {box-sizing: border-box;}
+    main {display:flex; flex-direction :column; height:100vh; width: 100%; max-width: none; margin-bottom: 50px;}
+    section {display:flex; padding:12px; gap:12px; align-items: flex-start;}
+    section > * {flex:1; height:100vh;}
+    .dragMessage {position:absolute;display:flex;align-items:center;justify-content:center;top:0;width:100%;height:100%;font-size:2rem;}
+    .overDropzone {background:rgba(0,0,0,.1);}
+    .push {margin-top:auto;}
+  </style>
+</head>
+<body>
+
+  <div id="app"
+    @drop.prevent="drop" 
+    @dragover.prevent 
+    @dragover="overDropzone=true" 
+    @dragleave="overDropzone=false" 
+    :class="{overDropzone}"
+  >
+    <main>
+      <div v-if="!this.manifestUrl" class="dragMessage" v-html="'Drag image or IIIF manifest into window'"></div>
+      <section v-if="manifestUrl">
+        <ve-image :src="manifestUrl" full height="100%" fit="cover" zoom-on-scroll></ve-image>
+        <ve-manifest :src="manifestUrl" style="max-width:500px;"></ve-manifest>
+      </section>
+      <!-- <ve-footer sticky></ve-footer> -->
+    </main>  
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <!-- <script src="https://unpkg.com/visual-essays/dist/visual-essays/visual-essays.esm.js" type="module"></script> -->
+  <script>
+    let ENV = (location.hostname == 'localhost' || location.protocol == 'file:') ? 'DEV' : 'PROD'
+
+    let externalStylesheet = document.createElement('link')
+    externalStylesheet.href = `${ENV === 'DEV' ? 'http://localhost:3333/build' : 'https://unpkg.com/visual-essays/dist/visual-essays'}/visual-essays.css`
+    externalStylesheet.rel = 'stylesheet'
+    let inlineStylesheet = document.head.querySelector('style')
+    inlineStylesheet.parentElement.insertBefore(externalStylesheet, inlineStylesheet)
+
+    let script = document.createElement('script')
+    script.src = `${ENV === 'DEV' ? 'http://localhost:3333/build' : 'https://unpkg.com/visual-essays/dist/visual-essays'}/visual-essays.esm.js`
+    script.type = 'module'
+    document.body.append(script)
+
+    const iiifServer = ENV === 'DEV' ? 'http://localhost:8088' : 'https://iiif.juncture-digital.org'
+  </script>
+  <script type="module">
+
+  import { defineCustomElements } from 'https://unpkg.com/visual-essays/loader/index.js'
+  
+  new Vue({
+    el: '#app',
+    data: () => ({
+      imageUrl: null,
+      manifestUrl: null,
+      overDropzone: false
+    }),
+    computed: {},
+    created() {
+      // if (location.hash.length > 1) this.manifestUrl = decodeURIComponent(location.hash.slice(1))
+      if (location.hash.length > 1) this.manifestUrl = location.hash.slice(1)
+    },
+    mounted() {},
+    methods: {
+      drop(e) {
+        this.overDropzone = false
+        let inputText = ''
+        if (e.dataTransfer) inputText = decodeURI(e.dataTransfer.getData('Text') || e.dataTransfer.getData('text/plain') || e.dataTransfer.getData('text/uri-list'))
+        if (inputText && isURL(inputText)) {
+          this.imageUrl = inputText
+          this.manifestUrl = null
+        }
+      },
+      async getManifestUrl(imageUrl) {
+        let resp = await fetch(`${iiifServer}/?url=${encodeURIComponent(imageUrl)}`)
+        return await resp.text()
+      },
+
+    },
+    watch: {
+      imageUrl(imageUrl) {
+        this.getManifestUrl(imageUrl).then((manifestUrl) => {
+          console.log(manifestUrl)
+          // this.manifestUrl = decodeURIComponent(manifestUrl)
+          this.manifestUrl = manifestUrl
+        })
+      },
+      manifestUrl(manifestUrl) {
+        location.hash = `#${manifestUrl}`
+      }
+    }
+  })
+  Vue.config.productionTip = false
+  Vue.config.devtools = true
+
+  function isURL(str) { return /^https*:\/\//.test(str) }
+  </script>
+
+</body>
+</html>
