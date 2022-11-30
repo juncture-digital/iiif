@@ -117,7 +117,7 @@ class Handler(HandlerBase):
       iiif_url_fragment = props['iiifUrls'][0].split("/iiif/")[1] if 'iiifUrls' in props and len(props['iiifUrls']) > 0 else None
       if iiif_url_fragment:
         info_json_url = f'https://www.jstor.org/iiif/{iiif_url_fragment}/info.json'
-        resp = requests.get(f'https://api.visual-essays.net/image-info/?url={quote(info_json_url)}')
+        resp = requests.get(f'https://api.juncture-digital.org/image-info/?url={quote(info_json_url)}')
         props['iiif_info'] = resp.json() if resp.status_code == 200 else {}
       self._raw_props = props
     return self._raw_props

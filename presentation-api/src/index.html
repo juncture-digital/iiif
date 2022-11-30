@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
-  <link href="https://visual-essays.github.io/web-app/static/images/favicon.svg" rel="icon" type="image/svg+xml"/>
-  <link href="https://visual-essays.github.io/web-app/static/images/favicon.png" rel="icon" type="image/png"/>
+  <link href="https://juncture-digital.github.io/web-app/static/images/favicon.svg" rel="icon" type="image/svg+xml"/>
+  <link href="https://juncture-digital.github.io/web-app/static/images/favicon.png" rel="icon" type="image/png"/>
   <title>Visual Essays Image Tool</title>
   <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
-  <!-- <link href="https://unpkg.com/visual-essays/dist/visual-essays/visual-essays.css" rel="stylesheet" /> -->
+  <!-- <link href="https://unpkg.com/juncture-digital/dist/juncture-digital/juncture-digital.css" rel="stylesheet" /> -->
   <style>
     [v-cloak] {display: none}
     body {margin: 0; font-family: Roboto, sans-serif; width: 100%;}
@@ -39,18 +39,18 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
-  <!-- <script src="https://unpkg.com/visual-essays/dist/visual-essays/visual-essays.esm.js" type="module"></script> -->
+  <!-- <script src="https://unpkg.com/juncture-digital/dist/juncture-digital/juncture-digital.esm.js" type="module"></script> -->
   <script>
     let ENV = (location.hostname == 'localhost' || location.protocol == 'file:') ? 'DEV' : 'PROD'
 
     let externalStylesheet = document.createElement('link')
-    externalStylesheet.href = `${ENV === 'DEV' ? 'http://localhost:3333/build' : 'https://unpkg.com/visual-essays/dist/visual-essays'}/visual-essays.css`
+    externalStylesheet.href = `${ENV === 'DEV' ? 'http://localhost:3333/build' : 'https://unpkg.com/juncture-digital/dist/juncture-digital'}/juncture-digital.css`
     externalStylesheet.rel = 'stylesheet'
     let inlineStylesheet = document.head.querySelector('style')
     inlineStylesheet.parentElement.insertBefore(externalStylesheet, inlineStylesheet)
 
     let script = document.createElement('script')
-    script.src = `${ENV === 'DEV' ? 'http://localhost:3333/build' : 'https://unpkg.com/visual-essays/dist/visual-essays'}/visual-essays.esm.js`
+    script.src = `${ENV === 'DEV' ? 'http://localhost:3333/build' : 'https://unpkg.com/juncture-digital/dist/juncture-digital'}/juncture-digital.esm.js`
     script.type = 'module'
     document.body.append(script)
 
@@ -58,7 +58,7 @@
   </script>
   <script type="module">
 
-  import { defineCustomElements } from 'https://unpkg.com/visual-essays/loader/index.js'
+  import { defineCustomElements } from 'https://unpkg.com/juncture-digital/loader/index.js'
   
   new Vue({
     el: '#app',
