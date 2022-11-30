@@ -263,14 +263,17 @@ def thumbnail(refresh=False, **kwargs):
     
     image_url = _image_url(kwargs['url'])
     image_data = _get_image_data(image_url)
-    if not image_data:
+    if image_data:
+        is_placeholder = False
+    else:
         _queue_iiif_convert(image_url)
         image_data = _get_image_data(PLACEHOLDER_IMAGE)
+        is_placeholder = True
     region, size = _calc_region_and_size(**kwargs)
     thumbnail_url = f'{image_data["service"]}/{region}/{size}/{kwargs["rotation"]}/{kwargs["quality"]}.{kwargs["format"]}'    
     resp = requests.get(thumbnail_url)
     if resp.status_code == 200:
-        thumbnail_cache[thumbnail_id] = resp.content
+        if not is_placeholder: thumbnail_cache[thumbnail_id] = resp.content
         thumbnail_url = _create_presigned_url('iiif-thumbnail', thumbnail_id)
     return thumbnail_url
 
