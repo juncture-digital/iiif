@@ -362,13 +362,14 @@ class HandlerBase(object):
         MessageBody=json.dumps(attrs)
     )
     image_id = sha256(self._image_url.encode('utf-8')).hexdigest()
-    info_json = f'https://4x4rr42s5yd4hr7mdrjqp3euqm0hnpoe.lambda-url.us-east-1.on.aws/iiif/2/{image_id}/info.json'
+    # info_json = f'https://4x4rr42s5yd4hr7mdrjqp3euqm0hnpoe.lambda-url.us-east-1.on.aws/iiif/2/{image_id}/info.json'
+    info_json = f'https://iiif-image.juncture-digital.org/iiif/2/{image_id}/info.json'
     return info_json
 
   @property
   def _image_service(self):
-    # return 'https://dlhrnzaoqn0wy.cloudfront.net/iiif/2'
-    return 'https://4x4rr42s5yd4hr7mdrjqp3euqm0hnpoe.lambda-url.us-east-1.on.aws/iiif/2'
+    # return 'https://4x4rr42s5yd4hr7mdrjqp3euqm0hnpoe.lambda-url.us-east-1.on.aws/iiif/2'
+    return 'https://iiif-image.juncture-digital.org/iiif/2'
 
   @property
   def _image_id(self):

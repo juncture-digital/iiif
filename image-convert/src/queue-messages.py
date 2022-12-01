@@ -30,7 +30,8 @@ def queue_message(**kwargs):
     )
 
     image_id = sha256(kwargs['url'].encode('utf-8')).hexdigest()
-    info_json = f'https://4x4rr42s5yd4hr7mdrjqp3euqm0hnpoe.lambda-url.us-east-1.on.aws/iiif/2/{image_id}/info.json'
+    # info_json = f'https://4x4rr42s5yd4hr7mdrjqp3euqm0hnpoe.lambda-url.us-east-1.on.aws/iiif/2/{image_id}/info.json'
+    info_json = f'https://iiif-image.juncture-digital.org/iiif/2/{image_id}/info.json'
     return info_json
 
 if __name__ == '__main__':

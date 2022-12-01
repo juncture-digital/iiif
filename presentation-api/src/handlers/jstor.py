@@ -54,10 +54,11 @@ class Handler(HandlerBase):
     self.image_url =  f'{image_service}/full/full/0/default.jpg' if image_service else None
     self.source_url = f'https://www.jstor.org/stable/{self.sourceid}'
 
-    image_info = props['iiif_info']
-    self.format = 'image/jpeg'
-    self.width = image_info.get('width', 0)
-    self.height = image_info.get('height', 0)
+    if 'iiif_info' in props:
+      image_info = props['iiif_info']
+      self.format = 'image/jpeg'
+      self.width = image_info.get('width', 0)
+      self.height = image_info.get('height', 0)
 
     self.add_metadata('creator', '; '.join(props.get('primary_agents',[])))
     self.add_metadata('tags', props.get('primary_agents',[]))
@@ -114,6 +115,7 @@ class Handler(HandlerBase):
         }
       )
       props = resp.json() if resp.status_code == 200 else {}
+      logger.info(json.dumps(props, indent=2))
       iiif_url_fragment = props['iiifUrls'][0].split("/iiif/")[1] if 'iiifUrls' in props and len(props['iiifUrls']) > 0 else None
       if iiif_url_fragment:
         info_json_url = f'https://www.jstor.org/iiif/{iiif_url_fragment}/info.json'
@@ -126,5 +128,8 @@ class Handler(HandlerBase):
     return self.props['iiif_info']
 
   def _service_endpoint(self):
-    iiif_url_fragment = self.raw_props['iiifUrls'][0].split("/iiif/")[1] if 'iiifUrls' in self.raw_props and len(self.raw_props['iiifUrls']) > 0 else None
-    return f'https://www.jstor.org/iiif/{iiif_url_fragment}' if iiif_url_fragment else None
+    if 'iiifUrls' in self.raw_props:
+      iiif_url_fragment = self.raw_props['iiifUrls'][0].split("/iiif/")[1] if 'iiifUrls' in self.raw_props and len(self.raw_props['iiifUrls']) > 0 else None
+      return f'https://www.jstor.org/iiif/{iiif_url_fragment}' if iiif_url_fragment else None
+    else:
+      return super()._service_endpoint()

@@ -41,8 +41,8 @@ def _queue_iiif_convert(image_url):
     )['MessageId']
 
 def _image_service():
-    # return 'https://dlhrnzaoqn0wy.cloudfront.net/iiif/2'
-    return 'https://4x4rr42s5yd4hr7mdrjqp3euqm0hnpoe.lambda-url.us-east-1.on.aws/iiif/2'
+    # return 'https://4x4rr42s5yd4hr7mdrjqp3euqm0hnpoe.lambda-url.us-east-1.on.aws/iiif/2'
+    return 'https://iiif-image.juncture-digital.org/iiif/2'
 
 def _image_id(image_url):
     return sha256(image_url.encode('utf-8')).hexdigest()
