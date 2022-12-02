@@ -403,7 +403,7 @@ class HandlerBase(object):
       
     logger.info(f'set_service: type={body.get("type")}')
     
-    if body.get('type') == 'Image':
+    if body.get('type') == 'Image' and body.get('format') not in ('image/gif',):
       if self.refresh or 'service' not in body:
         endpoint = self._service_endpoint()
         # logger.info(f'set_service: endpoint={endpoint}')

@@ -215,7 +215,7 @@ class Handler(HandlerBase):
     # List of GH files to check
     file_path_elems =  sourceid_path_elems[2:]
     gh_paths = [f'{"/".join(file_path_elems).split(".")[0]}.yaml'] + [f'{"/".join(file_path_elems[:-(i+1)])}{"/" if i < len(file_path_elems)-1 else ""}iiif-props.yaml' for i in range(len(file_path_elems))]
-    #if '.' in file_path_elems[-1] and file_path_elems[-1].split('.')[-1].lower() in ('jpg', 'jpeg', 'png'):
+    #if '.' in file_path_elems[-1] and file_path_elems[-1].split('.')[-1].lower() in ('jpg', 'jp2', 'jpeg', 'png'):
     #  gh_paths.append('/'.join(file_path_elems))
 
     results = {}

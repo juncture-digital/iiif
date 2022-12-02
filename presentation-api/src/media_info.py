@@ -99,9 +99,9 @@ class MediaInfo(object):
     else:
       path = self.download(url)
       if path:
-        # logger.info(magic.from_file(path, mime=True))
-        kind = filetype.guess(path)
-        mime = kind.mime if kind else None
+        mime = magic.from_file(path, mime=True)
+        # kind = filetype.guess(path)
+        # mime = kind.mime if kind else None
         _type = mime.split('/')[0]
         if _type in ('audio', 'video'):
           av_info = self.av_info(path)
