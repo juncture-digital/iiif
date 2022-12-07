@@ -24,6 +24,8 @@ import manifest_v2
 from prezi_upgrader import Upgrader
 from manifest import get_manifest, manifest_url, checkImageData
 
+from media_info import MediaInfo
+
 import requests
 logging.getLogger('requests').setLevel(logging.WARNING)
 
@@ -128,6 +130,9 @@ async def prezi2to3(request: Request, manifest: Optional[str] = None):
   
   return checkImageData(v3_manifest)
 
+def _metadata_value(manifest, key):
+  return next(iter([list(md['value'].values())[0][0] for md in manifest.get('metadata',[]) if key in [list(md['label'].values())[0][0]]]), None)
+
 def _find_item(obj, type, attr=None, attr_val=None, sub_attr=None):
   if 'items' in obj and isinstance(obj['items'], list):
     for item in obj['items']:
@@ -142,6 +147,7 @@ def _find_item(obj, type, attr=None, attr_val=None, sub_attr=None):
 @app.get('/banner/{path:path}')
 @app.get('/banner/')
 @app.get('/banner')
+@app.get('/poster/{path:path}')
 async def thumbnail(
   request: Request,
   path: Optional[str] = None,
@@ -152,16 +158,22 @@ async def thumbnail(
   width: Optional[int] = 0,
   height: Optional[int] = 0,
   rotation: Optional[int] = 0,
+  time: Optional[int] = 0,
   quality: Optional[str] = 'default',
   format: Optional[str] = 'jpg'
   ):
   _type = [pe for pe in request.url.path.split('/') if pe][0]
-  logger.info(f'thumbnail: path={path} url={url} type={_type}')
+  # logger.info(f'thumbnail: path={path} url={url} type={_type}')
   if path:
       baseurl = f'{request.base_url.scheme}://{request.base_url.netloc}'
       manifest = get_manifest(path, baseurl=baseurl, refresh=refresh)
       if _type == 'thumbnail':
-        thumbnail_url = manifest['thumbnail'][0]['id']
+        image_data = _find_item(manifest, type='Annotation', attr='motivation', attr_val='painting', sub_attr='body')
+        if image_data.get('type') == 'Video':
+          video_url = _metadata_value(manifest, 'image_url')
+          thumbnail_url = MediaInfo().poster(url=video_url, time=time, refresh=refresh)
+        else:
+          thumbnail_url = manifest['thumbnail'][0]['id']
       else:
         image_data = _find_item(manifest, type='Annotation', attr='motivation', attr_val='painting', sub_attr='body')
         if 'service' in image_data:
@@ -169,18 +181,22 @@ async def thumbnail(
         else: # banner
           thumbnail_url = manifest['thumbnail'][0]['id']
   else:
-    thumbnail_url = manifest_v2.thumbnail(**{
-      'url': url,
-      'refresh': refresh,
-      'region': region,
-      'size': size,
-      'width': width,
-      'height': height,
-      'rotation': rotation,
-      'quality': quality,
-      'format': format,
-      'type': _type
-    })
+    ext = [elem for elem in url.split('/') if elem][-1].split('.')[-1]
+    if ext in ('mp4', 'webm', 'ogg', 'ogv'): # is video
+      thumbnail_url = MediaInfo().poster(url=url, time=time, refresh=refresh)
+    else:
+      thumbnail_url = manifest_v2.thumbnail(**{
+        'url': url,
+        'refresh': refresh,
+        'region': region,
+        'size': size,
+        'width': width,
+        'height': height,
+        'rotation': rotation,
+        'quality': quality,
+        'format': format,
+        'type': _type
+      })
   return RedirectResponse(url=thumbnail_url)
 
 @app.get('/')

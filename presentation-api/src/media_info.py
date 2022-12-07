@@ -8,6 +8,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 import os
+import sys
 import argparse
 import json
 import uuid
@@ -28,6 +29,10 @@ import magic
 import filetype
 
 import ffmpeg
+
+import boto3
+from s3 import Bucket
+thumbnail_cache = Bucket('iiif-thumbnail')
 
 class MediaInfo(object):
 
@@ -120,6 +125,65 @@ class MediaInfo(object):
         os.remove(path)
     logger.debug(json.dumps(media_info, indent=2))
     return media_info
+  
+  def _create_presigned_url(self, bucket_name, object_name, expiration=600):
+    boto3.setup_default_session()
+    # Generate a presigned URL for the S3 object
+    s3_client = boto3.client(
+      's3',
+      region_name='us-east-1',
+      config=boto3.session.Config(signature_version='s3v4',)
+    )
+    try:
+      response = s3_client.generate_presigned_url(
+        'get_object',
+        Params={
+          'Bucket': bucket_name,
+          'Key': object_name,
+          'ResponseContentType': 'image/jpeg'
+        },
+        ExpiresIn=expiration
+      )
+    except Exception as e:
+        print(e)
+        logging.error(e)
+        return 'Error'
+    return response
+
+  def poster(self, url, time, refresh=False):
+    _id = sha256(f'{url}_{str(time)}'.encode('utf-8')).hexdigest()
+    
+    if not refresh and _id in thumbnail_cache:
+      return self._create_presigned_url('iiif-thumbnail', _id)
+
+    input_path = self.download(url)
+    image_path = f'/tmp/{_id}.jpg'
+
+    probe = ffmpeg.probe(input_path)
+    width = probe['streams'][0]['width']
+    try:
+      (
+        ffmpeg
+        .input(input_path, ss=time)
+        .filter('scale', width, -1)
+        .output(image_path, vframes=1)
+        .overwrite_output()
+        .run(capture_stdout=True, capture_stderr=True)
+      )
+    
+      img = None
+      with open(image_path, 'rb') as fp:
+        img = fp.read()
+      os.remove(input_path)
+      os.remove(image_path)
+      
+      if img:
+        thumbnail_cache[_id] = img
+        return self._create_presigned_url('iiif-thumbnail', _id)
+
+    except ffmpeg.Error as e:
+      print(e.stderr.decode(), file=sys.stderr)
+
 
 if __name__ == '__main__':
   logger.setLevel(logging.INFO)
