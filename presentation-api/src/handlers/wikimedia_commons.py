@@ -153,5 +153,5 @@ class Handler(HandlerBase):
         dro_qid = self._digital_representation_of(props['wc_entity'])
         props['dro_entity'] = self._get_wd_entity(dro_qid) if dro_qid else None
       self._raw_props = props
-    logger.info(json.dumps(self._raw_props, indent=2))
+    # logger.info(json.dumps(self._raw_props, indent=2))
     return self._raw_props

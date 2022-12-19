@@ -111,6 +111,10 @@ class MediaInfo(object):
         if _type in ('audio', 'video'):
           av_info = self.av_info(path)
           if av_info:
+            if 'display_aspect_ratio' in av_info:
+              wh = [int(v) for v in av_info['display_aspect_ratio'].split(':')]
+              aspect = wh[0]/wh[1]
+              av_info['width'] = round(av_info['height'] * aspect)
             media_info = {
               'format': mime,
               'size': os.stat(path).st_size
