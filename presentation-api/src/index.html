@@ -30,27 +30,27 @@
   >
     <main>
       <div v-if="!this.manifestUrl" class="dragMessage" v-html="'Drag image or IIIF manifest into window'"></div>
-      <section v-if="manifestUrl">
-        <ve-image :src="manifestUrl" full height="100%" fit="cover" zoom-on-scroll></ve-image>
-        <ve-manifest :src="manifestUrl" style="max-width:500px;"></ve-manifest>
+      <section>
+        <ve-media :src="manifestUrl" left fit="cover" zoom-on-scroll></ve-media>
+        <ve-manifest :manifest="manifestUrl" style="max-width:500px;"></ve-manifest>
       </section>
       <!-- <ve-footer sticky></ve-footer> -->
     </main>  
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
-  <!-- <script src="https://unpkg.com/juncture-digital/dist/juncture-digital/juncture-digital.esm.js" type="module"></script> -->
+
   <script>
     let ENV = (location.hostname == 'localhost' || location.protocol == 'file:') ? 'DEV' : 'PROD'
 
     let externalStylesheet = document.createElement('link')
-    externalStylesheet.href = `${ENV === 'DEV' ? 'http://localhost:3333/build' : 'https://unpkg.com/juncture-digital/dist/juncture-digital'}/juncture-digital.css`
+    externalStylesheet.href = 'https://cdn.jsdelivr.net/npm/juncture-digital/docs/css/index.css'
     externalStylesheet.rel = 'stylesheet'
     let inlineStylesheet = document.head.querySelector('style')
     inlineStylesheet.parentElement.insertBefore(externalStylesheet, inlineStylesheet)
 
     let script = document.createElement('script')
-    script.src = `${ENV === 'DEV' ? 'http://localhost:3333/build' : 'https://unpkg.com/juncture-digital/dist/juncture-digital'}/juncture-digital.esm.js`
+    script.src = ENV === 'DEV' ? 'http://localhost:5173/src/main.ts' : 'https://cdn.jsdelivr.net/npm/juncture-digital/docs/js/index.js'
     script.type = 'module'
     document.body.append(script)
 
@@ -58,7 +58,7 @@
   </script>
   <script type="module">
 
-  import { defineCustomElements } from 'https://unpkg.com/juncture-digital/loader/index.js'
+  // import { defineCustomElements } from 'https://unpkg.com/juncture-digital/loader/index.js'
   
   new Vue({
     el: '#app',
@@ -92,8 +92,8 @@
     watch: {
       imageUrl(imageUrl) {
         this.getManifestUrl(imageUrl).then((manifestUrl) => {
-          console.log(manifestUrl)
-          // this.manifestUrl = decodeURIComponent(manifestUrl)
+          // console.log(manifestUrl)
+          this.manifestUrl = decodeURIComponent(manifestUrl)
           this.manifestUrl = manifestUrl
         })
       },

@@ -52,10 +52,11 @@ def docs():
 def manifest(
   request: Request, 
   path: str, 
-  refresh: Optional[bool] = False,
+  refresh: Optional[str] = None,
   version: Optional[int] = 3
   ):
   start = now()
+  refresh = refresh in ('', 'true')
   baseurl = f'{request.base_url.scheme}://{request.base_url.netloc}'
   manifest = get_manifest(path, baseurl=baseurl, refresh=refresh)
   logger.info(f'manifest: path={path} baseurl={baseurl} refresh={refresh} elapsed={round(now()-start,3)}')

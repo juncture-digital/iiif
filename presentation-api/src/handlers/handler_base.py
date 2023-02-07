@@ -358,7 +358,10 @@ class HandlerBase(object):
     boto3.client('sqs').send_message(
         QueueUrl=SQS_URL,
         DelaySeconds=0,
-        MessageAttributes={'url': {'DataType': 'String', 'StringValue': self._image_url}},
+        MessageAttributes={
+          'url': {'DataType': 'String', 'StringValue': self._image_url},
+          'refresh': {'DataType': 'String', 'StringValue': 'true' if refresh else 'false'}
+        },
         MessageBody=json.dumps(attrs)
     )
     image_id = sha256(self._image_url.encode('utf-8')).hexdigest()
