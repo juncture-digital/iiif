@@ -68,6 +68,7 @@ class MediaInfo(object):
         'Accept': 'application/json'
       }
     )
+    logger.debug(f'{url} {resp.status_code}')
     return resp.json() if resp.status_code == 200 else {}
 
   def download(self, url):
@@ -76,7 +77,7 @@ class MediaInfo(object):
     if resp.status_code == 200:
       with open (path, 'wb') as fp:
         fp.write(resp.content)
-    return path
+    return path if resp.status_code == 200 else None
 
   def image_info(self, path):
     info = {}
@@ -97,9 +98,14 @@ class MediaInfo(object):
     return ffmpeg.probe(path)['streams'][0]
     
   def __call__(self, url, **kwargs):
+    logger.debug(f'media_info: url={url}')
     media_info = {}
     if url.endswith('/info.json'):
       media_info = self.from_info_json(url)
+    elif url.startswith('https://www.jstor.org/iiif'):
+      url = f'{"/".join(url.split("/")[:-4])}/info.json'
+      media_info = self.from_info_json(url)
+      logger.debug(media_info)
 
     else:
       path = self.download(url)

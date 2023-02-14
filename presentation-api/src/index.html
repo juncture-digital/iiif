@@ -69,8 +69,8 @@
     }),
     computed: {},
     created() {
-      // if (location.hash.length > 1) this.manifestUrl = decodeURIComponent(location.hash.slice(1))
-      if (location.hash.length > 1) this.manifestUrl = location.hash.slice(1)
+      let parsed = new URL(location.href)
+      this.manifestUrl = parsed.hash ? parsed.hash.slice(1) : parsed.searchParams.get('manifest')
     },
     mounted() {},
     methods: {

@@ -28,6 +28,7 @@ class Handler(HandlerBase):
   @staticmethod
   def can_handle(url):
     return url.startswith('https://search.creativecommons.org/') or \
+      url.startswith('https://openverse.org/image') or \
       url.startswith('https://search.openverse.engineering/') or \
       url.startswith('https://wordpress.org/openverse/') or \
       url.startswith('https://search-production.openverse.engineering/image')
