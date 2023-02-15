@@ -519,6 +519,13 @@ class HandlerBase(object):
       _depicts = [{'id': stmt['mainsnak']['datavalue']['value']['id'], 'prominent': stmt['rank'] == 'preferred'} for stmt in statements['P180']] if 'P180' in statements else []
       return sorted(_depicts, key = lambda i: i['prominent'], reverse=True)
     return []
+  
+  def _coords(self, entity):
+    if entity:
+      statements = entity['statements'] if 'statements' in entity else entity['claims']
+      if 'P1259' in statements:
+        val = statements['P1259'][0]['mainsnak']['datavalue']['value']
+        return f'{val["latitude"]},{val["longitude"]}'
 
   def get_manifest(self):
     if self.external_manifest_url:

@@ -54,7 +54,7 @@ class MediaInfo(object):
         exifImg.gps_longitude
         lat = round(self._decimal_coords(exifImg.gps_latitude, exifImg.gps_latitude_ref),6)
         lon = round(self._decimal_coords(exifImg.gps_longitude,exifImg.gps_longitude_ref),6)
-        data['location'] = f'{lat},{lon}'
+        data['coordinates_of_the_point_of_view'] = f'{lat},{lon}'
     except:
       logger.debug(traceback.format_exc())
     return data

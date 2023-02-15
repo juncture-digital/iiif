@@ -117,6 +117,9 @@ class Handler(HandlerBase):
       _depicts = [item['id'] for item in self._depicts(props['wc_entity'])]
       if len(_depicts) > 0:
         self.add_metadata(self._language_map('depicts', _depicts))
+      _coords = self._coords(props['wc_entity'])
+      if _coords:
+        self.add_metadata(self._language_map('coordinates_of_the_point_of_view', _coords))        
 
   def _image_url_from_sourceid(self, width=None):
     title = unquote(self.sourceid).replace(' ','_')
@@ -153,5 +156,5 @@ class Handler(HandlerBase):
         dro_qid = self._digital_representation_of(props['wc_entity'])
         props['dro_entity'] = self._get_wd_entity(dro_qid) if dro_qid else None
       self._raw_props = props
-    # logger.info(json.dumps(self._raw_props, indent=2))
+    logger.info(json.dumps(self._raw_props, indent=2))
     return self._raw_props
