@@ -174,7 +174,12 @@ async def thumbnail(
           video_url = _metadata_value(manifest, 'image_url')
           thumbnail_url = MediaInfo().poster(url=video_url, time=time, refresh=refresh)
         else:
-          thumbnail_url = manifest['thumbnail'][0]['id']
+          image_data = _find_item(manifest, type='Annotation', attr='motivation', attr_val='painting', sub_attr='body')
+          # thumbnail_url = manifest['thumbnail'][0]['id']
+          if not width and not height and not size:
+            width = 150
+          _size = f'{width or size or ""},{height or size or ""}'
+          thumbnail_url = f'{image_data["service"][0]["id"]}/{region}/{_size}/{rotation}/{quality}.{format}'
       else:
         image_data = _find_item(manifest, type='Annotation', attr='motivation', attr_val='painting', sub_attr='body')
         if 'service' in image_data:
