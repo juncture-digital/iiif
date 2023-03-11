@@ -35,7 +35,7 @@ class Handler(HandlerBase):
 
   @staticmethod
   def sourceid_from_url(url):
-    return url.split('/')[-1]
+    return url.split('/')[-1].split('?')[0]
 
   @staticmethod
   def manifest_url(url, baseurl):

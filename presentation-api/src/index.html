@@ -79,6 +79,8 @@
         let inputText = ''
         if (e.dataTransfer) inputText = decodeURI(e.dataTransfer.getData('Text') || e.dataTransfer.getData('text/plain') || e.dataTransfer.getData('text/uri-list'))
         if (inputText && isURL(inputText)) {
+          let parsedURL = new URL(inputText)
+          let manifestParam = parsedURL.searchParams.get('manifest')
           this.imageUrl = inputText
           this.manifestUrl = null
         }

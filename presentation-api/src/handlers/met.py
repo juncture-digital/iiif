@@ -5,7 +5,7 @@ import logging
 logging.basicConfig(format='%(asctime)s : %(filename)s : %(levelname)s : %(message)s')
 logger = logging.getLogger()
 
-import os
+import os, json
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 BASEDIR = os.path.dirname(SCRIPT_DIR)
 
@@ -35,12 +35,12 @@ class Handler(HandlerBase):
 
   def init_manifest(self):
     props = self.raw_props
-    logger.info(props)
+    # logger.info(json.dumps(props, indent=2))
 
     self.image_url = props.get('primaryImage')
     self.source_url = f'https://www.metmuseum.org/art/collection/search/{self.sourceid}'
 
-    image_info = self._image_info(self.image_url)
+    image_info = self._media_info(self.image_url)
     if 'objectWikidata_URL' in props:
       self.add_metadata('digital representation of', props['objectWikidata_URL'].split('/')[-1])
     if 'tags' in props:

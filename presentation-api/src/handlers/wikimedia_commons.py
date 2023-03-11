@@ -48,10 +48,9 @@ class Handler(HandlerBase):
     super().__init__('wc', sourceid, **kwargs)
 
   def init_manifest(self):
-    props = self.raw_props
-
-    imageinfo = props['wc_metadata']['imageinfo'][0]
-    extmetadata = imageinfo['extmetadata']
+    logger.info(props)
+    imageinfo = props['wc_metadata']['imageinfo'][0] if 'imageinfo' in props['wc_metadata'] else {}
+    extmetadata = imageinfo['extmetadata'] if 'extmetadata' in imageinfo else {}
     
     self.image_url = self._image_url_from_sourceid()
     self.source_url = f'https://commons.wikimedia.org/wiki/File:{self.sourceid}'
