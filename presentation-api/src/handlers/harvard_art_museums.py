@@ -26,11 +26,11 @@ class Handler(HandlerBase):
 
   @staticmethod
   def sourceid_from_url(url):
-    return  url.split('?')[0].split('/')[5]
+    return  url.split('?')[0].split('/')[5] if url.startswith('http') else url
 
   @staticmethod
-  def manifest_url(url, baseurl=None):
-    sourceid = Handler.sourceid_from_url(url)
+  def manifest_url(arg, baseurl=None):
+    sourceid = Handler.sourceid_from_url(arg) if arg.startswith('http') else arg
     return f'https://iiif.harvardartmuseums.org/manifests/object/{sourceid}'
 
   def __init__(self, url, **kwargs):
