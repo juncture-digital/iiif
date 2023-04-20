@@ -41,8 +41,8 @@ def _queue_iiif_convert(image_url):
     )['MessageId']
 
 def _image_service():
-    # return 'https://4x4rr42s5yd4hr7mdrjqp3euqm0hnpoe.lambda-url.us-east-1.on.aws/iiif/2'
-    return 'https://iiif-image.juncture-digital.org/iiif/2'
+    # return 'https://iiif-image.juncture-digital.org/iiif/2'
+    return 'https://4x4rr42s5yd4hr7mdrjqp3euqm0hnpoe.lambda-url.us-east-1.on.aws/iiif/2'
 
 def _image_id(image_url):
     return sha256(image_url.encode('utf-8')).hexdigest()
@@ -182,9 +182,9 @@ def connect_db():
         _db_connection = MongoClient(atlas_endpoint)['iiif']
     return _db_connection
 
-def get_manifest_by_id(id):
+def get_manifest_by_id(id, refresh=False):
     baseurl = 'https://iiif.juncture-digital.org'
-    cached_manifest = manifest_cache.get(id)
+    cached_manifest = manifest_cache.get(id) if not refresh else None
     if cached_manifest and not isinstance(cached_manifest, str):
         cached_manifest = cached_manifest.decode('utf-8')
     if cached_manifest:

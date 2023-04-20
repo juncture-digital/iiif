@@ -200,7 +200,7 @@ class Handler(HandlerBase):
     props = {}
     acct, repo = self.sourceid.split('/')[:2]
     props['repo_info'] = gh_repo_info(acct, repo)
-    props['user_info'] = gh_user_info(login=props['repo_info']['owner']['login'])
+    if 'owner' in props['repo_info']: props['user_info'] = gh_user_info(login=props['repo_info']['owner']['login'])
     ref = props['repo_info']['default_branch']
     props['gh_props'] = self._get_gh_props(acct, repo, ref, self.sourceid)
     return props

@@ -48,7 +48,7 @@ class Handler(HandlerBase):
     super().__init__('wc', sourceid, **kwargs)
 
   def init_manifest(self):
-    logger.info(props)
+    props = self.raw_props
     imageinfo = props['wc_metadata']['imageinfo'][0] if 'imageinfo' in props['wc_metadata'] else {}
     extmetadata = imageinfo['extmetadata'] if 'extmetadata' in imageinfo else {}
     
@@ -155,5 +155,5 @@ class Handler(HandlerBase):
         dro_qid = self._digital_representation_of(props['wc_entity'])
         props['dro_entity'] = self._get_wd_entity(dro_qid) if dro_qid else None
       self._raw_props = props
-    logger.info(json.dumps(self._raw_props, indent=2))
+    logger.debug(json.dumps(self._raw_props, indent=2))
     return self._raw_props

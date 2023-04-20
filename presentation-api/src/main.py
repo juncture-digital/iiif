@@ -75,9 +75,28 @@ async def get_or_create_manifest(request: Request):
 
 @app.get('/manifest/{mid}/')
 @app.get('/manifest/{mid}')
-async def get_v2_manifest(mid: str):
-  logger.info(f'get_v2_manifest: mid={mid}')
-  return manifest_v2.get_manifest_by_id(mid)
+async def get_v2_manifest(
+  mid: str, 
+  refresh: Optional[bool] = False,
+  ):
+  v2_manifest = manifest_v2.get_manifest_by_id(mid, refresh)
+  '''
+  upgrader = Upgrader(flags={
+    'crawl': False,        # NOT YET IMPLEMENTED. Crawl to linked resources, such as AnnotationLists from a Manifest
+    'desc_2_md': True,     # If true, then the source's `description` properties will be put into a `metadata` pair. If false, they will be put into `summary`.
+    'related_2_md': False, # If true, then the `related` resource will go into a `metadata` pair. If false, it will become the `homepage` of the resource.
+    'ext_ok': False,       # If true, then extensions are allowed and will be copied across.
+    'default_lang': 'en',  # The default language to use when adding values to language maps.
+    'deref_links': False,  # If true, the conversion will dereference external content resources to look for format and type.
+    'debug': False,        # If true, then go into a more verbose debugging mode.
+    'attribution_label': '', # The label to use for requiredStatement mapping from attribution
+    'license_label': ''} # The label to use for non-conforming license URIs mapped into metadata
+  )
+  v3_manifest = upgrader.process_resource(v2_manifest, True) 
+  v3_manifest = upgrader.reorder(v3_manifest)
+  return checkImageData(v3_manifest)
+  '''
+  return v2_manifest
 
 @app.get('/gp-proxy/{path:path}')
 async def gh_proxy(request: Request, response: Response, path: str):
