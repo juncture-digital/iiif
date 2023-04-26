@@ -387,7 +387,7 @@ class HandlerBase(object):
       self._queue_iiif_convert(refresh=self.refresh)
     return f'{self._image_service}/{self._image_id}'
 
-  def set_service(self):        
+  def set_service(self, refresh=False):        
     self.is_updated = True
             
     if 'format' not in self.canvas:
@@ -407,7 +407,7 @@ class HandlerBase(object):
     logger.info(f'set_service: type={body.get("type")}')
     
     if body.get('type') == 'Image' and body.get('format') not in ('image/gif',):
-      if self.refresh or 'service' not in body:
+      if refresh or self.refresh or 'service' not in body:
         endpoint = self._service_endpoint()
         # logger.info(f'set_service: endpoint={endpoint}')
         body['service'] = [{
@@ -534,5 +534,14 @@ class HandlerBase(object):
       return external_manifests[self.external_manifest_url]
     else:
       manifest = json.loads(json.dumps(self.m).replace('{BASE_URL}', self.baseurl))
+      '''
+      if self.source == 'wc':
+        body = self._find_item(type='Annotation', attr='motivation', attr_val='painting', sub_attr='body')
+        if body.get('type') == 'Image' and body.get('format') not in ('image/gif',):
+          if 'service' not in body or 'zoomviewer.toolforge.org' in body['service'][0]['id']:
+            self.image_url = self._image_url_from_sourceid()
+            self.set_service(refresh=True)
+            manifest = json.loads(json.dumps(self.m).replace('{BASE_URL}', self.baseurl))
+      '''
       # logger.info(json.dumps(manifest, indent=2))
       return manifest

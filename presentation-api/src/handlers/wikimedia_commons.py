@@ -19,6 +19,8 @@ from licenses import CreativeCommonsLicense, RightsStatement
 # import requests
 # logging.getLogger('requests').setLevel(logging.WARNING)
 
+USE_WC_IIIF = False
+
 class Handler(HandlerBase):
 
   @staticmethod
@@ -136,14 +138,14 @@ class Handler(HandlerBase):
     return self.raw_props['wc_metadata']['imageinfo'][0]
 
   def _service_endpoint(self):
-    '''
-    resp = requests.get(f'https://zoomviewer.toolforge.org/proxy.php?iiif={self.sourceid.replace(".tif",".jpg")}/info.json')
-    if resp.status_code == 200:
-      info_json = resp.json()
-      logger.debug(json.dumps(info_json, indent=2))
-      return info_json['@id'].replace('http','https')
-    '''
-    return f'https://zoomviewer.toolforge.org/proxy.php?iiif={self.sourceid.replace(".tif",".jpg")}'
+    return f'https://zoomviewer.toolforge.org/proxy.php?iiif={self.sourceid.replace(".tif",".jpg")}' if USE_WC_IIIF else super()._service_endpoint()
+
+  def get_manifest(self):
+    self.image_url = self._image_url_from_sourceid()
+    self.set_service(refresh=True)
+    manifest = json.loads(json.dumps(self.m).replace('{BASE_URL}', self.baseurl))
+    # logger.info(json.dumps(manifest, indent=2))
+    return manifest
 
   @property
   def raw_props(self):
