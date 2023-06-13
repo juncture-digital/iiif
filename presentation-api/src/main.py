@@ -196,7 +196,7 @@ async def thumbnail(
           image_data = _find_item(manifest, type='Annotation', attr='motivation', attr_val='painting', sub_attr='body')
           # thumbnail_url = manifest['thumbnail'][0]['id']
           if not width and not height and not size:
-            width = 150
+            width = 400
           _size = f'{width or size or ""},{height or size or ""}'
           thumbnail_url = f'{image_data["service"][0]["id"]}/{region}/{_size}/{rotation}/{quality}.{format}'
       else:
