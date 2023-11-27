@@ -9,16 +9,13 @@ import os
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 BASEDIR = os.path.dirname(SCRIPT_DIR)
 
-import yaml
-
 from handlers.handler_base import HandlerBase
 from licenses import CreativeCommonsLicense, RightsStatement
 
 import requests
 logging.getLogger('requests').setLevel(logging.WARNING)
 
-CONFIG = yaml.load(open(f'{BASEDIR}/config.yaml', 'r').read(), Loader=yaml.FullLoader)
-FLICKR_API_KEY = CONFIG.get('FLICKR_API_KEY')
+FLICKR_API_KEY = os.environ.get('FLICKR_API_KEY')
 
 class Handler(HandlerBase):
 

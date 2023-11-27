@@ -60,6 +60,7 @@ class MediaInfo(object):
     return data
 
   def from_info_json(self, url):
+    logger.debug(f'from_info_json: url={url}')
     resp = requests.get(url,
       cookies={'UUID': str(uuid.uuid4())},
       headers={
@@ -68,8 +69,7 @@ class MediaInfo(object):
         'Accept': 'application/json'
       }
     )
-    logger.debug(f'{url} {resp.status_code}')
-    return resp.json() if resp.status_code == 200 else {}
+    return resp.json() if resp.status_code == 200 else {}, resp.status_code
 
   def download(self, url):
     path = f'/tmp/{sha256(url.encode("utf-8")).hexdigest()}'
@@ -100,8 +100,9 @@ class MediaInfo(object):
   def __call__(self, url, **kwargs):
     logger.debug(f'media_info: url={url}')
     media_info = {}
+    status_code = 200
     if url.endswith('/info.json'):
-      media_info = self.from_info_json(url)
+      media_info, status_code = self.from_info_json(url)
     elif url.startswith('https://www.jstor.org/iiif'):
       url = f'{"/".join(url.split("/")[:-4])}/info.json'
       media_info = self.from_info_json(url)
@@ -111,6 +112,7 @@ class MediaInfo(object):
       path = self.download(url)
       if path:
         mime = magic.from_file(path, mime=True)
+        logger.info(f'path={path} mime={mime}')
         # kind = filetype.guess(path)
         # mime = kind.mime if kind else None
         _type = mime.split('/')[0]
@@ -134,7 +136,7 @@ class MediaInfo(object):
           media_info = self.image_info(path)
         os.remove(path)
     logger.debug(json.dumps(media_info, indent=2))
-    return media_info
+    return media_info, status_code
   
   def _create_presigned_url(self, bucket_name, object_name, expiration=600):
     boto3.setup_default_session()

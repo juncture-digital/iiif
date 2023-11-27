@@ -6,10 +6,6 @@ logging.basicConfig(format='%(asctime)s : %(filename)s : %(levelname)s : %(messa
 logger = logging.getLogger(__name__)
 
 import os
-import yaml
-
-SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
-CONFIG = yaml.load(open(f'{SCRIPT_DIR}/config.yaml', 'r').read(), Loader=yaml.FullLoader)
 
 import sys
 from hashlib import sha256
@@ -41,8 +37,8 @@ def _queue_iiif_convert(image_url):
     )['MessageId']
 
 def _image_service():
-    # return 'https://iiif-image.juncture-digital.org/iiif/2'
-    return 'https://4x4rr42s5yd4hr7mdrjqp3euqm0hnpoe.lambda-url.us-east-1.on.aws/iiif/2'
+    return 'https://iiif-image.juncture-digital.org/iiif/2'
+    # return 'https://4x4rr42s5yd4hr7mdrjqp3euqm0hnpoe.lambda-url.us-east-1.on.aws/iiif/2'
 
 def _image_id(image_url):
     return sha256(image_url.encode('utf-8')).hexdigest()
@@ -176,13 +172,13 @@ _db_connection = None
 def connect_db():
     '''MongoDB connection'''
     global _db_connection
-    atlas_endpoint = f'mongodb+srv://{CONFIG["atlas"]}/?retryWrites=true&w=majority'
+    atlas_endpoint = f'mongodb+srv://mongo-user:{os.environ.get("ATLAS_PASSWORD")}@cluster0.llrbv.gcp.mongodb.net/?retryWrites=true&w=majority'
 
     if _db_connection is None:
         _db_connection = MongoClient(atlas_endpoint)['iiif']
     return _db_connection
 
-def get_manifest_by_id(id, refresh=False):
+def get_manifest_by_id(id, refresh=False):   
     baseurl = 'https://iiif.juncture-digital.org'
     cached_manifest = manifest_cache.get(id) if not refresh else None
     if cached_manifest and not isinstance(cached_manifest, str):
@@ -272,9 +268,9 @@ def thumbnail(refresh=False, **kwargs):
     region, size = _calc_region_and_size(**kwargs)
     thumbnail_url = f'{image_data["service"]}/{region}/{size}/{kwargs["rotation"]}/{kwargs["quality"]}.{kwargs["format"]}'    
     resp = requests.get(thumbnail_url)
-    if resp.status_code == 200:
-        if not is_placeholder: thumbnail_cache[thumbnail_id] = resp.content
-        thumbnail_url = _create_presigned_url('iiif-thumbnail', thumbnail_id)
+    # if resp.status_code == 200:
+    #    if not is_placeholder: thumbnail_cache[thumbnail_id] = resp.content
+    #    thumbnail_url = _create_presigned_url('iiif-thumbnail', thumbnail_id)
     return thumbnail_url
 
 def _find_item(obj, type, attr=None, attr_val=None, sub_attr=None):

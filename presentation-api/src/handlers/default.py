@@ -9,10 +9,7 @@ import os
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 BASEDIR = os.path.dirname(SCRIPT_DIR)
 
-import yaml
 from urllib.parse import quote, unquote
-
-CONFIG = yaml.load(open(f'{BASEDIR}/config.yaml', 'r').read(), Loader=yaml.FullLoader)
 
 from handlers.handler_base import HandlerBase
 

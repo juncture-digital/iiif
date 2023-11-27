@@ -188,11 +188,12 @@ class Handler(HandlerBase):
       for future in concurrent.futures.as_completed(futures):
         idx = futures[future]
         try:
+          logger.info(future.result())
           results[idx] = yaml.load(future.result(), Loader=yaml.FullLoader) or {}
         except Exception as exc:
           logger.info('%r generated an exception: %s' % (props_paths[idx], exc))
           logger.debug(traceback.format_exc())
-    logger.debug(json.dumps(results,indent=2))
+    logger.info(json.dumps(results,indent=2))
     return self._merge_gh_props(results)
 
   @property

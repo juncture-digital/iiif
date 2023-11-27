@@ -2,6 +2,7 @@
 *creds.json
 config.yaml
 gcreds.json
+set_secrets.sh
 .venv
 __pycache__
 images/*

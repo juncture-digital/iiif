@@ -50,10 +50,10 @@ def docs():
 @app.get('/iiif/{path:path}/manifest.json')
 @app.get('/iiif/{version:int}/{path:path}/manifest.json')
 def manifest(
-  request: Request, 
-  path: str, 
-  refresh: Optional[str] = None,
-  version: Optional[int] = 3
+    request: Request, 
+    path: str, 
+    refresh: Optional[str] = None,
+    version: Optional[int] = 3
   ):
   start = now()
   refresh = refresh in ('', 'true')
@@ -76,8 +76,8 @@ async def get_or_create_manifest(request: Request):
 @app.get('/manifest/{mid}/')
 @app.get('/manifest/{mid}')
 async def get_v2_manifest(
-  mid: str, 
-  refresh: Optional[bool] = False,
+    mid: str, 
+    refresh: Optional[bool] = False,
   ):
   v2_manifest = manifest_v2.get_manifest_by_id(mid, refresh)
   '''
@@ -183,10 +183,11 @@ async def thumbnail(
   format: Optional[str] = 'jpg'
   ):
   _type = [pe for pe in request.url.path.split('/') if pe][0]
-  # logger.info(f'thumbnail: path={path} url={url} type={_type}')
+  logger.info(f'thumbnail: path={path} url={url} type={_type}')
   if path:
       baseurl = f'{request.base_url.scheme}://{request.base_url.netloc}'
       manifest = get_manifest(path, baseurl=baseurl, refresh=refresh)
+      logger.info(manifest)
       if _type == 'thumbnail':
         image_data = _find_item(manifest, type='Annotation', attr='motivation', attr_val='painting', sub_attr='body')
         if image_data.get('type') == 'Video':
@@ -222,7 +223,13 @@ async def thumbnail(
         'format': format,
         'type': _type
       })
+  # return Response(content=f'<a href="{thumbnail_url}"><img src="{thumbnail_url}" /></a>', status_code=200, media_type='text/html')
   return RedirectResponse(url=thumbnail_url)
+
+@app.get('/mediainfo')
+async def mediainfo(url):
+  content, status_code = MediaInfo()(url=url)
+  return Response(content=json.dumps(content), status_code=status_code, media_type='application/json')
 
 @app.get('/')
 async def default(

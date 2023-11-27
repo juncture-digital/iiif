@@ -9,11 +9,8 @@ import os
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 BASEDIR = os.path.dirname(SCRIPT_DIR)
 
-import yaml
-
-CONFIG = yaml.load(open(f'{BASEDIR}/config.yaml', 'r').read(), Loader=yaml.FullLoader)
-OPENVERSE_CLIENT_ID = CONFIG.get('OPENVERSE_CLIENT_ID')
-OPENVERSE_CLIENT_SECRET = CONFIG.get('OPENVERSE_CLIENT_SECRET')
+OPENVERSE_CLIENT_ID = 'dSfaKEBUrRFYuN5UQyp6WXIL1YtzkH8HscMZcWo6'
+OPENVERSE_CLIENT_SECRET = os.environ.get('OPENVERSE_CLIENT_SECRET')
 
 from handlers.handler_base import HandlerBase
 from licenses import CreativeCommonsLicense, RightsStatement

@@ -11,7 +11,6 @@ BASEDIR = os.path.dirname(SCRIPT_DIR)
 
 import json
 
-import yaml
 from urllib.parse import quote
 
 from handlers.handler_base import HandlerBase
@@ -21,8 +20,7 @@ from licenses import CreativeCommonsLicense, RightsStatement
 import requests
 logging.getLogger('requests').setLevel(logging.WARNING)
 
-CONFIG = yaml.load(open(f'{BASEDIR}/config.yaml', 'r').read(), Loader=yaml.FullLoader)
-JSTOR_API_KEY = CONFIG.get('JSTOR_API_KEY')
+JSTOR_API_KEY = os.environ.get('JSTOR_API_KEY')
 
 class Handler(HandlerBase):
 

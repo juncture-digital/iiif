@@ -19,7 +19,7 @@ from licenses import CreativeCommonsLicense, RightsStatement
 # import requests
 # logging.getLogger('requests').setLevel(logging.WARNING)
 
-USE_WC_IIIF = True
+USE_WC_IIIF = False
 
 class Handler(HandlerBase):
 

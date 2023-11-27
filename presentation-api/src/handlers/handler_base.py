@@ -55,7 +55,7 @@ class HandlerBase(object):
       if manifest_last_updated:
         manifest_last_updated = datetime.strptime(manifest_last_updated, '%Y-%m-%dT%H:%M:%SZ')
         days_since_last_update = (datetime.now() - manifest_last_updated).days
-        logger.info(f'manifest_last_updated={manifest_last_updated} days_since_last_update={days_since_last_update}')
+        logger.debug(f'manifest_last_updated={manifest_last_updated} days_since_last_update={days_since_last_update}')
       if days_since_last_update is None or days_since_last_update > 30:
         self.m = None
 
@@ -95,7 +95,7 @@ class HandlerBase(object):
 
           manifest_cache[self.manifestid] = json.dumps(self.m)
 
-    logger.info(f'HandlerBase: elapsed={round(now()-start,3)}')
+    logger.debug(f'HandlerBase: elapsed={round(now()-start,3)}')
 
   @property
   def canvas(self):
@@ -106,7 +106,7 @@ class HandlerBase(object):
   
   def set_image_url(self, url):
     self._image_url = url
-    logger.info(f'image_url={self._image_url}')
+    logger.debug(f'image_url={self._image_url}')
     self.add_metadata('image_url', self._image_url)
 
   image_url = property(get_image_url, set_image_url)
@@ -121,7 +121,7 @@ class HandlerBase(object):
   
   def set_source_url(self, url):
     self._source_url = url
-    logger.info(f'source_url={self._source_url}')
+    logger.debug(f'source_url={self._source_url}')
     self.add_metadata('source_url', self._source_url)
 
   source_url = property(get_source_url, set_source_url)
@@ -166,7 +166,7 @@ class HandlerBase(object):
       labels = list(set([val for values in lm['label'].values() for val in values]))
       idx, existing = self._find_metadata(labels[0])
       if existing:
-        logger.info(f'replacing metadata value: {lm}')
+        logger.debug(f'replacing metadata value: {lm}')
         self.m['metadata'][idx] = lm
       else:
         self.m['metadata'].append(lm)
@@ -187,7 +187,7 @@ class HandlerBase(object):
     return self.m.get('requiredStatement')
 
   def set_requiredStatement(self, statement):
-    logger.info(f'set_requiredStatement: {statement}')
+    logger.debug(f'set_requiredStatement: {statement}')
     for attr in ('label', 'value'):
       if attr in statement and isinstance(statement[attr], str):
         statement[attr] = {self.language: [statement[attr]]}
@@ -354,7 +354,7 @@ class HandlerBase(object):
       attrs['refresh'] = {'DataType': 'String', 'StringValue': 'true'}
     if quality:
       attrs['quality'] = {'DataType': 'String', 'StringValue': str(quality)}
-    logger.info(attrs)
+    logger.debug(attrs)
     boto3.client('sqs').send_message(
         QueueUrl=SQS_URL,
         DelaySeconds=0,
@@ -390,11 +390,14 @@ class HandlerBase(object):
   def set_service(self, refresh=False):        
     self.is_updated = True
             
-    if 'format' not in self.canvas:
-      _media_info = self._media_info(self.image_url)
+    # if 'format' not in self.canvas:
+    if not self.canvas.get('format'):
+      _media_info, _ = self._media_info(self.image_url)
+      logger.debug(json.dumps(_media_info, indent=2))
       for fld in ('duration', 'format', 'height', 'width'):
         if fld in _media_info: self.canvas[fld] = _media_info.get(fld,'')
       self.is_updated = True
+      logger.debug(json.dumps(self.canvas, indent=2))
     
     body = self._find_item(type='Annotation', attr='motivation', attr_val='painting', sub_attr='body')
     for fld in ('duration', 'height', 'width'):
@@ -404,7 +407,7 @@ class HandlerBase(object):
       body['format'] = self.canvas['format']
       body['type'] = body['format'].split('/')[0].title()
       
-    logger.info(f'set_service: type={body.get("type")}')
+    logger.debug(f'set_service: type={body.get("type")}')
     
     if body.get('type') == 'Image' and body.get('format') not in ('image/gif',):
       if refresh or self.refresh or 'service' not in body:
@@ -454,11 +457,10 @@ class HandlerBase(object):
         'User-Agent': 'Labs client',
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        # 'Authorization': f'Bearer {_config.get("JSTOR_API_KEY")}'
       },
       json = {'query': {'query_string': {'query': query}}, 'size': 100}
     )
-    logger.info(f'get_related_entities: {query} {resp.status_code}')
+    logger.debug(f'get_related_entities: {query} {resp.status_code}')
     related = {}
     if resp.status_code == 200:
       results = resp.json()
@@ -483,7 +485,9 @@ class HandlerBase(object):
     return (_elem.text if _elem else soup.text).strip()
 
   def _get_wc_metadata(self, title):
-    resp = requests.get(f'https://commons.wikimedia.org/w/api.php?format=json&action=query&titles=File:{title}&prop=imageinfo&iiprop=extmetadata|size|mime')
+    url = f'https://commons.wikimedia.org/w/api.php?format=json&action=query&titles=File:{quote(title)}&prop=imageinfo&iiprop=extmetadata|size|mime'
+    resp = requests.get(url)
+    logger.debug(f'{url} {resp.status_code}')
     if resp.status_code == 200:
       return list(resp.json()['query']['pages'].values())[0]
 
@@ -543,5 +547,13 @@ class HandlerBase(object):
             self.set_service(refresh=True)
             manifest = json.loads(json.dumps(self.m).replace('{BASE_URL}', self.baseurl))
       '''
+      body = self._find_item(type='Annotation', attr='motivation', attr_val='painting', sub_attr='body')
+      
+      if 'type' not in body and 'id' in body:
+        self.image_url = body['id']
+        self.set_service(refresh=True)
+        manifest = json.loads(json.dumps(self.m).replace('{BASE_URL}', self.baseurl))
+        manifest_cache[self.manifestid] = json.dumps(self.m)
+  
       # logger.info(json.dumps(manifest, indent=2))
       return manifest
