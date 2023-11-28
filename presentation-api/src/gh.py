@@ -15,9 +15,6 @@ import datetime
 import requests
 logging.getLogger('requests').setLevel(logging.INFO)
 
-SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
-CONFIG = yaml.load(open(f'{SCRIPT_DIR}/config.yaml', 'r').read(), Loader=yaml.FullLoader)
-
 GH_ACCESS_TOKEN = os.environ.get('GH_ACCESS_TOKEN')
 
 def get_gh_file_by_url(url):
