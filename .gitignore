@@ -8,3 +8,5 @@ __pycache__
 images/*
 aws-creds
 *.sqlite
+image-convert/aws/build.log
+presentation-api/aws/build.log
