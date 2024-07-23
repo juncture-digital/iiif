@@ -32,7 +32,7 @@ logging.getLogger('requests').setLevel(logging.WARNING)
 from expiringdict import ExpiringDict
 _cache = ExpiringDict(max_len=100, max_age_seconds=3600)
 
-app = FastAPI(title='Juncture IIIF Presentation API', root_path='/')
+app = FastAPI(title='Juncture IIIF Presentation API')
 
 app.add_middleware(
   CORSMiddleware,
@@ -236,6 +236,7 @@ async def default(
   request: Request,
   url: Optional[str] = None
   ):
+  print("STARTING DEFAULT HANDLER")
   if url:
     baseurl = f'{request.base_url.scheme}://{request.base_url.netloc}'
     html = manifest_url(url, baseurl)
