@@ -68,11 +68,17 @@ class Bucket(object):
         start_after = (start_after or prefix) if prefix.endswith(delimiter) else start_after
         for page in self.s3_paginator.paginate(Bucket=self.bucket_name, Prefix=prefix, StartAfter=start_after):
             for content in page.get('Contents', ()):
-                yield content['Key']
+                try:
+                    yield content['Key']
+                except:
+                    raise
 
     def items(self, prefix='/', delimiter='/'):
         for key in self.__iter__(prefix, delimiter):
-            yield key, self.get(key)
+            try:
+                yield key, self.get(key)
+            except:
+                raise
 
     def keys(self, prefix='/', delimiter='/'):
         return [key for key in self.__iter__(prefix, delimiter)]
