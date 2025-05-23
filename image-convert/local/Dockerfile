@@ -12,7 +12,7 @@ RUN apt-get update \
 
 RUN pip install awslambdaric boto3 pyvips requests
 
-ENV APP_HOME /usr/src/app
+ENV APP_HOME=/usr/src/app
 WORKDIR $APP_HOME
 COPY . ./
 

@@ -9,7 +9,7 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 
-ENV APP_HOME /usr/src/app
+ENV APP_HOME=/usr/src/app
 WORKDIR $APP_HOME
 
 RUN pip install --break-system-packages awslambdaric boto3 pyvips requests

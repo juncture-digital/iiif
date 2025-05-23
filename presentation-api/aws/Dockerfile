@@ -8,7 +8,7 @@ RUN apt-get update \
   && ln -s /usr/bin/python3 python \
   && rm -rf /var/lib/apt/lists/*
 
-ENV APP_HOME /usr/src/app
+ENV APP_HOME=/usr/src/app
 
 WORKDIR $APP_HOME
 
